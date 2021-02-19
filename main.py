@@ -1,4 +1,3 @@
-# In the name of God
 import numpy as np
 import matplotlib
 # matplotlib.use('GTK')  # Or any other X11 back-end
@@ -31,22 +30,6 @@ np.set_printoptions(precision=2)
 pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', 10)
 # pd.set_option('display.width', 1000)
-
-# B = np.array([[1,1,0,0,0,0],[0,0,1,1,0,0],[0,0,0,0,1,1]])
-# B = B/np.sum(B, axis=1)[:,np.newaxis]
-# P = np.array([[1,1,0,0,0,1],[0,0,1,1,1,0]])
-# Wtilde = np.random.uniform(size=(3,3))
-# comRec_core = communityRecovery(Wtilde, B, P) 
-# comRec_core.relaxedOptimize(5) # comRec_core.fullOptimize()
-# print('*$#@*',comRec_core.getSolution())
-
-
-'''
- TODOSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
- 1. change the notations: L->m or coarse-size, C->r (coverage size), etc.
- 2.
- 
- '''
 
 '''
  ErrorBoundFig 
@@ -83,10 +66,10 @@ if(False):
 windows = True
 Community_Recover = True
 ErrorBound_Calc = True
-n_array = [30000] # np.multiply([5, 6, 7, 8, 9, 10, 11, 12], 1e6) # [20, 50, 100, 200, 500, 1000] # 
+n_array = [3000] # np.multiply([5, 6, 7, 8, 9, 10, 11, 12], 1e6) # [20, 50, 100, 200, 500, 1000] # 
 K_array = [5] # [4] # n should be divisible by K
 nu_array = [2] # C should be divisible by nu
-m_array = [300] # [10, 20, 50, 100, 150, 200, 300, 400, 500] # [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800] # [40, 50] # list(np.arange(5, 200, 10)) # [200, 75, 25, 15] # [40] #  coverage_array = [1000]
+m_array = [30] # [10, 20, 50, 100, 150, 200, 300, 400, 500] # [50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800] # [40, 50] # list(np.arange(5, 200, 10)) # [200, 75, 25, 15] # [40] #  coverage_array = [1000]
 
 
 dist_case = 'SBM'
@@ -102,8 +85,8 @@ mesh = None # geographical2DMesh(n)
 def main():
     df = df_empty(['n','m', 'K', 'r', 'Failure UB Error'], ['int', 'int', 'int', 'int', 'float'])  
     for n in n_array:
-        alpha_array = [500] # np.multiply([0.3], n/np.log(n)) # np.arange(1, 52, 8) # 
-        beta = 50 # 0.05 * n/np.log(n)
+        alpha_array = [50] # np.multiply([0.3], n/np.log(n)) # np.arange(1, 52, 8) # 
+        beta = 5 # 0.05 * n/np.log(n)
         for alpha in alpha_array:
             for K in K_array:        
               for nu in nu_array:  
@@ -185,13 +168,15 @@ def main():
                                         #TODO make if more efficient, not saving same W over and over
     #                                     df_in['fine-W'] = W
     #                                     df_in['coarse-W'] = W_tilde
-                                        if(False):
+                                        if(True):
                                             print('GroundTruth partitioning: ', true_comIdx_coarse)
+                                            for method, idx in recovered_comIdx.items():
+                                                print('Recovered partitioning for {} is: {}'.format(method, idx))
                                         df_in.update(evalCommunityRecovery(df_in, recovered_comIdx, true_comIdx_coarse, W_tilde))
     #                                     df_in['Community Recovery Error'] = 
                                         df = df.append(df_in, ignore_index=True) 
                                         print(df)
-                                        if(True):
+                                        if(False):
                                             df.to_csv('out.csv', index=False) 
                                         if(True):
                                             print('NF1 Recovery Error with M-NMF = ', df_in['NF1 Recovery Error with M-NMF'])

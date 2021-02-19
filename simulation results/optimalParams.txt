@@ -1,0 +1,17 @@
+M-NMF optimal parameters =  {'dimension': 10, 'clusters': 10, 'lambd': 0.2, 'alpha': 0.15000000000000002, 'beta': 0.03, 'iterations': 500, 'lower_control': 1e-15, 'eta': 9.1, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D0766EFC88>, 'scoring': MatchingResult(score=0.44799999999999995, std=None)}
+M-NMF Done.
+nnsed optimal parameters =  {'dimension': 16, 'iterations': 500, 'seed': 42, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D076125288>, 'scoring': MatchingResult(score=0.22079999999999994, std=None)}
+nnsed Done.
+BigClam optimal parameters =  {'dimensions': 19, 'iterations': 500, 'learning_rate': 5e-05, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D077CC2908>, 'scoring': MatchingResult(score=0.0915, std=None)}
+BigClam Done.
+
+
+
+M-NMF optimal parameters =  {'dimension': 19, 'clusters': 10, 'lambd': 0.2, 'alpha': 0.1, 'beta': 0.025, 'iterations': 500, 'lower_control': 1e-15, 'eta': 0.1, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D077CF1488>, 'scoring': MatchingResult(score=0.4896, std=None)}
+M-NMF Done.
+nnsed optimal parameters =  {'dimension': 10, 'iterations': 500, 'seed': 42, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D053967AC8>, 'scoring': MatchingResult(score=0.21394285714285713, std=None)}
+nnsed Done.
+BigClam optimal parameters =  {'dimensions': 16, 'iterations': 500, 'learning_rate': 5e-05, 'communities': <cdlib.classes.node_clustering.NodeClustering object at 0x000002D07611BE08>, 'scoring': MatchingResult(score=0.20388571428571428, std=None)}
+BigClam Done.
+
+
