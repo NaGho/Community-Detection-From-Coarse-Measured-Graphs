@@ -1,0 +1,4 @@
+n,m,K,r,Failure UB Error,Failure UB Error (Highest U),Failure UB Error (Lowest U),K_nu,NF1 Recovery Error with BigClam,NF1 Recovery Error with M-NMF,NF1 Recovery Error with SLPA,NF1 Recovery Error with nnsed,alpha,alpha-beta Gap,beta,nu,p,q,scaling,tauTilde
+10000,200,4,2,1,0.004048917,1,10,0.8575,0.1675,0.8575,0.952280702,100,23.3772234,10,2,0.092103404,0.00921034,1,0.1
+10000,200,4,10,1,1,1.20E-09,10,0.85,0.2125,0.85,0.635,100,23.3772234,10,2,0.092103404,0.00921034,1,0.1
+10000,200,4,40,0.147494333,1,0.001894403,10,0.85,0.24,0.85,0.45,100,23.3772234,10,2,0.092103404,0.00921034,1,0.1

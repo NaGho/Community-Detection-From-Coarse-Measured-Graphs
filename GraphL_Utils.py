@@ -3,13 +3,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 # plt.switch_backend('agg')
 import seaborn as sns
-import supervised_tasks
 import pandas
 import random
-from supervised_tasks import LoadCore, data_load, PreProcessing, Task
+# from supervised_tasks import LoadCore, data_load, PreProcessing, Task
 from scipy.signal import butter, lfilter, freqz
 from itertools import islice
-import sys
+# import sys
 from dask.dataframe.tests.test_rolling import idx
 import pandas as pd
 from scipy import stats, signal
@@ -24,13 +23,18 @@ from collections import Counter
 from scipy import optimize
 from sklearn.cluster import KMeans
 from numpy.f2py.auxfuncs import isarray
-
-
+from datetime import datetime
+import itertools
+from collections import Counter
+# from graph_tool import spectral
+# from numba import jit, cuda
+# import graph_tool.all as gt
 
 np.set_printoptions(precision=2)
 RColorBrewer_palette = ['Set1', 'Set2', 'Set3', 'Paired', 'BuPu', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral']
 ColorList = ['darkred','red', 'orangered', 'darkorange', 'orange']# ['blue', 'deepskyblue','red', 'darkorange', 'gold','limegreen']
-
+colors = ["#c03d56", "#005589","#2d7858"]
+customPalette1 = "Paired"# sns.set_palette(sns.color_palette(colors))
 
 def select_fine_distribution(size, case, zero_coeff=None, mean=0, sd=None, min=None, max=None):
 #         return FineMatCore(size=size, distribution=SBMDistProp(num_communities=num_communities, pre_V=V), laplacian=SchCompFlag)
@@ -334,7 +338,7 @@ class CoarseMatCore(object):
 class PlotCore(object):
     def __init__(self, sparsity_core=None, log_scale=False, log_xscale=False , match_ranges=False, num_bins=None, \
                  minX_axis=None, maxX_axis=None, minY_axis=None, maxY_axis=None, saveFlag=False, figName=' ', \
-                 xlabel=None, ylabel=None, title=None, \
+                 xlabel=None, ylabel=None, title=None, paper_rc=None, aspect=None,\
                  legends=None, showFlag=True, figsize = (10, 8), dpi=80, fineGraphFlag = None, facecolor=None,\
                  edgecolor=None, ColorList=None, palette_cmap=None, reorder_num_cluster=4, heatmap_reorder=False):
         self.sparsity_core = sparsity_core
@@ -362,7 +366,8 @@ class PlotCore(object):
         self.palette_cmap = palette_cmap
         self.reorder_num_cluster = reorder_num_cluster
         self.heatmap_reorder = heatmap_reorder
-        
+        self.paper_rc = paper_rc
+        self.aspect = aspect
     
 class SparsityCore(object):
     def __init__(self, vec_all=None, init=None, end=None, KernelBW=None, dim=None):
@@ -486,36 +491,36 @@ def Gdisparity_function(x, sparsity_core):
     
     
     
-class SignalGen(Task):        
-    def run(self, load_Core):
-        if('ECoG' in self.task_core.signal_mode) :
-            num_nodes, dimArray, data_load_core = data_load(self.task_core).run(load_Core) # np.any(data_load_core.y_train<0)
-        X = data_load_core.X_train
-        y = data_load_core.y_train 
-        if(data_load_core.X_test is not None):
-            X = np.concatenate((X, data_load_core.X_test),0)
-            y = np.concatenate((y, data_load_core.y_test),0)
-        X, y, clip_sizes, conv_sizes, dimArray = PreProcessing(X, y, None, data_load_core.clip_sizes_train, data_load_core)
-        
-        
-        idx_nonszr = np.argwhere(y==0)[:,0]
-        if(self.task_core.num_nonszr_samp is not None):
-            idx_nonszr = np.random.choice(idx_nonszr, size=np.min([self.task_core.num_nonszr_samp, idx_nonszr.size]), replace=False)
-        try:
-            idx_szr = np.argwhere(y>0) [:,0] # idx_szr.shape
-            idx_preszr = np.argwhere(y<0)[:,0]
-            if(self.task_core.num_szr_samp is not None):
-                idx_szr = np.random.choice(idx_szr, size=np.min([self.task_core.num_szr_samp, idx_szr.size]), replace=False)
-            if(self.task_core.num_preszr_samp is not None):
-                idx_preszr = np.random.choice(idx_preszr, size=np.min([self.task_core.num_preszr_samp, idx_preszr.size]), replace=False)
-        except:
-            print('')
-        idx = np.concatenate((idx_nonszr[:,np.newaxis], idx_szr[:,np.newaxis], idx_preszr[:,np.newaxis]), 0)[:,0]
-        X = X[idx]
-        y = y[idx]
-            
-        
-        return X, y, {'idx_nonszr':idx_nonszr, 'idx_szr':idx_szr, 'idx_preszr':idx_preszr}
+# class SignalGen(Task):        
+#     def run(self, load_Core):
+#         if('ECoG' in self.task_core.signal_mode) :
+#             num_nodes, dimArray, data_load_core = data_load(self.task_core).run(load_Core) # np.any(data_load_core.y_train<0)
+#         X = data_load_core.X_train
+#         y = data_load_core.y_train 
+#         if(data_load_core.X_test is not None):
+#             X = np.concatenate((X, data_load_core.X_test),0)
+#             y = np.concatenate((y, data_load_core.y_test),0)
+#         X, y, clip_sizes, conv_sizes, dimArray = PreProcessing(X, y, None, data_load_core.clip_sizes_train, data_load_core)
+#         
+#         
+#         idx_nonszr = np.argwhere(y==0)[:,0]
+#         if(self.task_core.num_nonszr_samp is not None):
+#             idx_nonszr = np.random.choice(idx_nonszr, size=np.min([self.task_core.num_nonszr_samp, idx_nonszr.size]), replace=False)
+#         try:
+#             idx_szr = np.argwhere(y>0) [:,0] # idx_szr.shape
+#             idx_preszr = np.argwhere(y<0)[:,0]
+#             if(self.task_core.num_szr_samp is not None):
+#                 idx_szr = np.random.choice(idx_szr, size=np.min([self.task_core.num_szr_samp, idx_szr.size]), replace=False)
+#             if(self.task_core.num_preszr_samp is not None):
+#                 idx_preszr = np.random.choice(idx_preszr, size=np.min([self.task_core.num_preszr_samp, idx_preszr.size]), replace=False)
+#         except:
+#             print('')
+#         idx = np.concatenate((idx_nonszr[:,np.newaxis], idx_szr[:,np.newaxis], idx_preszr[:,np.newaxis]), 0)[:,0]
+#         X = X[idx]
+#         y = y[idx]
+#             
+#         
+#         return X, y, {'idx_nonszr':idx_nonszr, 'idx_szr':idx_szr, 'idx_preszr':idx_preszr}
 
 def rand_choose_diff_int(start, end, size):
     if(end-start>=size):
@@ -670,7 +675,7 @@ def graph_reorder(x, num_cluster=4):
         cluster_sizes = np.array([6, 3, 4, 5]).astype(int)
         block_sizes = np.matmul(cluster_sizes[:,np.newaxis], (cluster_sizes[:,np.newaxis]).T)
         block_sizes[np.diag_indices(num_cluster, 2)] = [int(cluster_sizes[i]*(cluster_sizes[i]+1)/2) for i in np.arange(num_cluster)]
-        block_sizes_flat =  block_sizes[np.triu_indices(num_cluster)] # block_sizes.flatten('C')
+        block_sizes_flat =  block_sizes[np.triu_indices(num_cluster)] # block_sizes.flatten('r')
         order_block_sizes = []
         for i in np.arange(num_cluster):
             for j in np.arange(i, num_cluster):
@@ -763,16 +768,44 @@ def plot_boxplot(df, groupby_col, target_cols=None, plot_core=None):
 
     
 def plot_single_regression(df, x_col, y_col, hue_col,  plot_core=None):
-    sns.lmplot(x=x_col, y=y_col, hue=hue_col, data=df)
-        
+    sns.lmplot(x=x_col, y=y_col, hue=hue_col, data=df, fit_reg=True)
     plt.title('' if plot_core is None else plot_core.title) #, fontsize
-    plt.tight_layout() 
+#     plt.tight_layout() 
     if(plot_core.saveFlag):
         plt.savefig(plot_core.figName + '.png')
     if(plot_core.showFlag):
         plt.show()
         
-        
+def relPlot(df, x_col, y_col, hue_col=None, style_col=None, plot_core=None):
+#     f, ax = plt.subplots()
+#     if(plot_core.log_scale):
+#         ax.set(yscale="log")
+    sns.set(font_scale=1.3) 
+    sns.set_style("whitegrid", {'axes.grid' : False})
+    sns.set_context(rc = plot_core.paper_rc)  # "paper", 
+#     fig, ax = plt.subplots()
+    grid = sns.relplot(data=df, x=x_col, y=y_col, hue=hue_col, kind="line", style=style_col, legend='full', \
+                                        markers=True, palette=plot_core.palette_cmap, height=6, aspect=plot_core.aspect) # , ci="sd" # , _legend_out=False
+    # palettes = ['BuPu', 'hot', sns.color_palette("mako_r", 6) , "tab10", 'RdYlBu' , 'Paired' , 'Dark2', "Reds", sns.cubehelix_palette(8)]
+    grid._legend_out = False
+    leg = grid._legend
+    leg.set_bbox_to_anchor([1, 0.66])  # coordinates of lower left of bounding box
+    leg._loc = 4  # if required you can set the loc
+    if(plot_core.log_scale):
+        grid.set(yscale="log")
+    if(plot_core.minX_axis is not None and plot_core.maxX_axis is not None):
+        plt.xlim(plot_core.minX_axis, plot_core.maxX_axis)
+    if(plot_core.minY_axis is not None and plot_core.maxY_axis is not None):
+        plt.ylim(plot_core.minY_axis, plot_core.maxY_axis)
+    plt.title('' if plot_core is None else plot_core.title) #, fontsize
+#     fig.set_size_inches(plot_core.figsize)
+#     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+#     plt.legend(loc='upper right')
+    plt.tight_layout() 
+    if(plot_core.saveFlag):
+        plt.savefig(plot_core.figName + '.png')
+    if(plot_core.showFlag):
+        plt.show()
         
 def plot_regression(df, groupby_col, target_cols=None, plot_core=None):
     numRows = 1 if len(target_cols)<4 else 3
@@ -807,14 +840,17 @@ def plot_regression(df, groupby_col, target_cols=None, plot_core=None):
     if(plot_core.showFlag):
         plt.show()
         
-def plot_line(df, x_col, target_cols, groupby_col=None, hue_col=None, plot_core=None):
+def plot_line(df, x_col, target_cols, groupby_col=None, hue_col=None, hue_col2=None, plot_core=None):
+    fig, ax = plt.subplots()
     if(groupby_col is not None):
         df = df[[x_col] + target_cols + [groupby_col] + [hue_col]]
     elif(hue_col is not None):
         df = df[[x_col] + target_cols + [hue_col]]
+    elif(hue_col2 is not None):
+        df = df[[x_col] + target_cols + [hue_col]+ [hue_col2]]
     else:
         df = df[[x_col] + target_cols]
-    plt.figure(figsize=plot_core.figsize, dpi=plot_core.dpi)
+#     plt.figure(figsize=plot_core.figsize, dpi=plot_core.dpi)
 #     dfgroupedby = df.groupby(x_col)[target_cols].mean()
 #     x = np.array(dfgroupedby.index)
 #     palettes = ['BuPu', 'hot']
@@ -828,20 +864,21 @@ def plot_line(df, x_col, target_cols, groupby_col=None, hue_col=None, plot_core=
 #                 new_df = new_df.rename(columns={y_col:'log-'+y_col})
 #                 y_col = 'log-'+y_col
 #             sns.lineplot(x=x_col, y=y_col, hue=groupby_col, data=new_df, markers=marker_arr[counter]) # , palette = palettes[counter]
-    
-    
     if(groupby_col is not None):
         y_col = plot_core.ylabel
         df = df.melt(id_vars=[x_col,groupby_col], value_vars= target_cols, value_name=y_col, var_name='mode')
         sns.lineplot(x=x_col, y=y_col, hue=groupby_col, data=df) #  , style='mode'
     elif(len(target_cols)==1):
         y_col = target_cols[0]
-        if(plot_core.log_scale):
-            df['log '+y_col] = df[y_col].apply(np.log)
-            df = df.drop(columns=[y_col])
-            y_col = 'log '+ y_col
+#         if(plot_core.log_scale):
+#             df['log '+y_col] = df[y_col].apply(np.log)
+#             df = df.drop(columns=[y_col])
+#             y_col = 'log '+ y_col
 #         df[hue_col] = df[hue_col].astype('category')
-        sns.lineplot(x=x_col, y=y_col, hue=hue_col, data=df, legend='full') # , palette="tab10", linewidth=2.5
+        sns.lineplot(x=x_col, y=y_col, hue=hue_col, data=df, legend='full', style=hue_col if hue_col2 is None else hue_col2, \
+                     markers=True, linewidth=4, markersize=10, palette=customPalette1)  # "Paired"
+
+       
     
 
     
@@ -849,7 +886,18 @@ def plot_line(df, x_col, target_cols, groupby_col=None, hue_col=None, plot_core=
 #     value_name = 'sparsity'
 #     new_df = df.melt(id_vars=x_col, value_name=value_name, var_name=var_name)
 #     sns.lineplot(x=x_col, y=value_name, hue=var_name, data=new_df, palette = "hot", dashes = False, markers = ["o", "<"],  legend="brief")
-    
+    plt.rcParams.update({'font.size': 30, 'font.weight':'bold', 'font.family':'normal'})
+    plt.rcParams.update({'xtick.labelsize' : 30}) 
+    plt.rcParams.update({'ytick.labelsize' : 30}) 
+    sns.set_style('ticks')
+    sns.set(font_scale = 4)
+    plt.grid(color='gray', linestyle='-', linewidth=0.5)
+    fig.set_size_inches(8, 7)
+    if(plot_core.log_scale):
+        ax.set_yscale('log')
+    xmin, xmax, ymin, ymax = plt.axis()
+    ax.set_xticks(np.arange(xmin, xmax, ((xmax-xmin)/10)))
+#     ax.set_yticks(np.arange(ymin, ymax, ((ymax-ymin)/10)))
     plt.title('' if plot_core is None else plot_core.title) 
     plt.tight_layout()
 #     axes = plt.gca()
@@ -861,8 +909,6 @@ def plot_line(df, x_col, target_cols, groupby_col=None, hue_col=None, plot_core=
         y1 = plot_core.minY_axis
     if(plot_core.maxY_axis is not None):
         y2 = plot_core.maxY_axis
-        
-        
     plt.axis((x1,x2,y1,y2))
     if(plot_core.saveFlag):
         plt.savefig( plot_core.figName + '.png')
@@ -896,7 +942,7 @@ def plot_scatter(df, x_col, y_col, hue_col=None, style=None, plot_core=None):
     ax.set_ylabel(y_col, fontsize=16);
     
     #    sns.hls_palette(np.unique(df[target_cols[0]].values).size, l=.3, s=.8) # 'RdYlBu' # 'Paired' # 'Dark2'
-
+ 
     plt.title('' if plot_core is None else plot_core.title) 
 #     plt.tight_layout()
     if(plot_core.saveFlag):
@@ -982,7 +1028,7 @@ def plot_heat(df, target_cols, plot_core):
     cols = target_cols # ['Column {}'.format(col) for col in range(1, 4)]
     for ax, col in zip(axes[0], cols):
         ax.set_title(col)
-    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'C', 'D']]
+    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'r', 'D']]
     for ax, row in zip(axes[:,0], rows):
         ax.set_ylabel(row, rotation=0, size='large')
     
@@ -1026,7 +1072,7 @@ def plot_heat_text(df, target_cols, text_cols, remove_str, plot_core):
     cols = target_cols # ['Column {}'.format(col) for col in range(1, 4)]
     for ax, col in zip(axes[0], cols):
         ax.set_title(col)
-    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'C', 'D']]
+    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'r', 'D']]
     for ax, row in zip(axes[:,0], rows):
         ax.set_ylabel(row, rotation=0, size='large')
     
@@ -1096,7 +1142,7 @@ def plot_heat_hist_text(df, target_cols, plot_core, heat_flags, hist_flags, text
     # ['Column {}'.format(col) for col in range(1, 4)]
     for ax, col in zip(axes[0], label_cols):
         ax.set_title(col)
-    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'C', 'D']]
+    rows = [] # ['Row {}'.format(row) for row in ['A', 'B', 'r', 'D']]
     for ax, row in zip(axes[:,0], rows):
         ax.set_ylabel(row, rotation=0, size='large')
     
@@ -1247,24 +1293,86 @@ def InvGraphLaplacian(B, diagvals=None):
 def GraphLaplacian(B):
     return np.diag(np.sum(B,axis=1)) - B
 
-def MapFineToCoarse(W, param):
-    if(hasattr(param, 'fine2Coarse_core') and param.fine2Coarse_core.mode.Schur_comp):
-        Omega = GraphLaplacian(W)
-        subsampleSet = param.fine2Coarse_core.subsample_set
-        OmegaTilde = Schur_complement(Omega, subsampleSet) #TODO check here # , diagvals=np.diag(W)
-        return InvGraphLaplacian(OmegaTilde, diagvals=None) # =np.diag(W)[subsampleSet]
-        # np.all( InvGraphLaplacian(Schur_complement(GraphLaplacian(W), samp_set, marg_set), diagvals=np.diag(W)) == W)
-        # np.all( Schur_complement(GraphLaplacian(W), samp_set, marg_set) == GraphLaplacian(W))
-        # np.all( InvGraphLaplacian(GraphLaplacian(W)) == W)
-    elif(~hasattr(param, 'fine2Coarse_core') or param.fine2Coarse_core.mode.linear):
-        B = param.fine2Coarse_core.linear_Coarsening_mat #TODO B or T?? B.shape
-    #         B = np.eye(V)
-    #         B = B[samp_set,:]
-        if(B.shape[0]==W.shape[0]):
-            W_tilde = W
+
+def numCommonElems(ar1, ar2):
+#     comElems = np.intersect1d(ar1, ar2)
+#     print('common elems between ar1={} and ar2={} is {}, size={}'.format(ar1, ar2, comElems, comElems.size))
+    return np.intersect1d(ar1, ar2).size
+    
+
+
+# methods = {'neighborIdx': neighborIdx}
+
+def MapFineToCoarse(fine_graph, measuring_core=None, param=None):
+    if(fine_graph.adjacencyMatrix is not None):
+        W = fine_graph.adjacencyMatrix
+        if(measuring_core is not None):
+            if(measuring_core.linCoarseningMat is not None):
+                B = measuring_core.linCoarseningMat 
+                return np.matmul(np.matmul(B,W), B.T)
+            else:
+                # TODO can be half calculations
+                return np.array([[W[np.array(sense1)[:,None], np.array(sense2)].sum() for sense1 in iter(measuring_core.senseIdx)] for sense2 in iter(measuring_core.senseIdx)])
+        if(hasattr(param, 'fine2Coarse_core') and param.fine2Coarse_core.mode.Schur_comp):
+            Omega = GraphLaplacian(W)
+            subsampleSet = param.fine2Coarse_core.subsample_set
+            OmegaTilde = Schur_complement(Omega, subsampleSet) #TODO check here # , diagvals=np.diag(W)
+            return InvGraphLaplacian(OmegaTilde, diagvals=None) # =np.diag(W)[subsampleSet]
+            # np.all( InvGraphLaplacian(Schur_complement(GraphLaplacian(W), samp_set, marg_set), diagvals=np.diag(W)) == W)
+            # np.all( Schur_complement(GraphLaplacian(W), samp_set, marg_set) == GraphLaplacian(W))
+            # np.all( InvGraphLaplacian(GraphLaplacian(W)) == W)
+        elif(~hasattr(param, 'fine2Coarse_core') or param.fine2Coarse_core.mode.linear):
+            B = param.fine2Coarse_core.linear_Coarsening_mat #TODO B or T?? B.shape
+        #         B = np.eye(V)
+        #         B = B[samp_set,:]
+            if(B.shape[0]==W.shape[0]):
+                W_tilde = W
+            else:
+                W_tilde = np.matmul(np.matmul(B,W), B.T) # np.reshape(, ()) # 
+    else:
+        if(measuring_core.linCoarseningMat is not None):
+            B = measuring_core.linCoarseningMat 
+            raise ValueError('MapFineToCoarse with matrix B is not implemented :(')
         else:
-            W_tilde = np.matmul(np.matmul(B,W), B.T) # np.reshape(, ()) # 
-        return W_tilde
+            # TODO can be half calculations
+            
+#             if(False):
+#                 W_tilde = np.array([[numCommonElems(list(itertools.chain.from_iterable([list(fine_graph.neighborIdx(v)) for v in sense1])),sense2) \
+#                                    for sense1 in iter(measuring_core.senseIdx)] \
+#                                             for sense2 in iter(measuring_core.senseIdx)])
+#             else:
+            L = len(measuring_core.senseIdx)
+#             print('Calculating neighbourIdx inline...')
+#             neighbourIdx = [list(itertools.chain.from_iterable([list(fine_graph.neighborIdx(v)) for v in sense])) for sense in iter(measuring_core.senseIdx)]
+#             print('before W-tilde inline calculation...')
+#             W_tilde = np.array([[numCommonElems(neighIdx, sense) for neighIdx in neighbourIdx] for sense in iter(measuring_core.senseIdx)])
+            
+            counter_complete = 0
+            def numCommonElems(a, b):
+                nonlocal counter_complete
+                if(counter_complete%1000 == 0):
+                    print('Generating Coarse Network {0:.0%} Completed '.format(counter_complete*2/(L*(L-1))))
+                counter_complete += 1
+#                FALSEEEEE return len(set(neighbourIdx[a]).intersection(measuring_core.senseIdx[b]))
+#                FALSEEEEE return np.intersect1d(neighbourIdx[a], measuring_core.senseIdx[b], assume_unique=False).size
+#                FALSEEEEE return len(list((Counter(neighbourIdx[a]) * Counter(measuring_core.senseIdx[b])).elements()))
+#                 return len([i for i in neighbourIdx[a] if i in measuring_core.senseIdx[b]])
+#                 return sum([Counter(neighbourIdx[a])[i] for i in Counter(measuring_core.senseIdx[b])])
+                return sum([len(set(fine_graph.neighborIdx(v)).intersection(measuring_core.senseIdx[b])) for v in measuring_core.senseIdx[a]])
+            
+            print('Generating itertool pairs...')
+            pairs = itertools.combinations(np.arange(L), 2)
+            print('Generating itertool res...')
+            # @jit(target ="cuda")
+            res = dict([ (t, numCommonElems(*t)) for t in pairs])
+            print('Generating W-tilde from res...')
+            W_tilde = np.zeros((L,L))
+            W_tilde[np.triu_indices(L, k=1)] = list(res.values())
+            W_tilde += W_tilde.T
+            W_tilde[np.diag_indices(L)] = [numCommonElems(a, a) for a in np.arange(L)]
+#             print('after W-tilde in line calculation')
+            print('Wtilde = ', W_tilde)             
+    return W_tilde
         
 def cross_spectrum(X, normalize=False):
     poww = np.sqrt(np.sum(np.abs(X)**2, -1))
@@ -1596,9 +1704,7 @@ def OverlappedCommunities(B, Q_SBM_indices):
         overlapList.append(inlist)        
     return overlapList    
     
-class SBMLinCoarsMatCore():
-    def __init__(self):
-        return
+
 
 def FindMajority(l):
     most_commons = Counter(l).most_common()
@@ -1621,35 +1727,6 @@ class SynchronizationCore():
     
         
         
-def GenerateSBMLinCoarsMat(mesh, numFineNodes, numCoarseNodes, coverage, scaling):
-    B = np.zeros((numCoarseNodes, numFineNodes))
-    SBM_LinCoarsMat_core = SBMLinCoarsMatCore()
-    if(mesh is not None):
-        chosen = choose2DRandomDistant(mesh, outSize=numCoarseNodes, coverageSize=coverage)
-        for i in np.arange(numCoarseNodes):
-            B[i, chosen[i]] = 1
-        
-        
-#         meshSensing = np.zeros_like(mesh)    
-#         meshSensing = 0    
-#         SBM_LinCoarsMat_core.meshSensing = meshSensing
-    else:
-        chosen = choose1DRandomDistant(np.arange(numFineNodes), size=numCoarseNodes, coverage=coverage)
-        for i in np.arange(numCoarseNodes):
-            B[i, chosen[i]:chosen[i]+coverage] = 1
-#         syncRatio = 1-count_non_sync(chosen, coverage, sizes_SBM)/total_num_communities
-    
-    
-    if(isinstance(scaling, str)):
-        if(scaling == 'row_normalize'):
-            row_sums = B.sum(axis=1)
-            B = B / row_sums[:, np.newaxis]
-        elif(mode.scaling == 'mat_normalize'):
-            B = B / B.sum()
-    else:
-        B = B*scaling
-    SBM_LinCoarsMat_core.B = B
-    return B # SBM_LinCoarsMat_core
 
 
 def sensingLayout(A):
@@ -1761,6 +1838,7 @@ class SBMCore():
                         
                 self.comIndices = [list(np.argwhere(np.squeeze(self.P[j, :])!=0).reshape(-1)) for j in np.arange(self.numComs)]
                 self.comSizes = np.sum(self.P, axis=1).astype(int)
+                print('Community Sizes in SBM Core ', self.comSizes)
                 if(np.any(np.array(aggregateList(self.comIndices))>self.numNodes) or np.sum(self.comSizes)!=self.numNodes):
                     raise ValueError('Invalid community to fine node mapping!')
                 
@@ -1780,29 +1858,78 @@ class SBMDistProp(object):
 #         self.intra_community = CoarseningParams(fine_core=FineMatCore(size=community_size, distribution= NormalDistProp(5, 1)))
 #         self.inter_community = CoarseningParams(fine_core=FineMatCore(size=community_size, distribution= DeltaDistProp(1))) 
         
-    def sample(self, size=1):   # TODO complete
-#         W = np.ones(size) * -100000
-#         community_size = self.numNodes
-#         num_communities = int(V/community_size) # param.fine_core.intra_community.V
-#         for i in np.arange(num_communities):
-#             idx_1 = np.arange(start=i*community_size, stop=(i+1)*community_size)
-#             for j in np.arange(num_communities):
-#                 idx_2 = np.arange(start=j*community_size, stop=(j+1)*community_size)
-#                 if(i==j):
-#                     W[idx_1[:,None], idx_2] = fine_mat_gen(self.inter_community)
-#                 else:
-#                     W[idx_1[:,None], idx_2] = fine_mat_gen(self.intra_community)    
-        g = nx.stochastic_block_model(self.SBM_core.comSizes, self.SBM_core.Qprobs, seed=0) 
-#         np.any(self.SBM_core.Qprobs!=self.SBM_core.Qprobs.T)
-        # , nodelist=aggregateList(self.SBM_core.comIndices)
-        mat = nx.to_numpy_matrix(g)
-        aggList = aggregateList(self.SBM_core.comIndices)
-#         if(np.any(np.array(aggList)>=V)):
-#                     raise ValueError('Invalid community to fine node mapping!')
-        W = reorderMat(mat, toPermutation=aggList)
-        return W
+    def sample(self, size=1, df=None):   # TODO complete
+        # from scratch
+        if(False): 
+            W = np.ones(size) * -100000
+            community_size = self.numNodes
+            num_communities = int(V/community_size) # param.fine_core.intra_community.V
+            for i in np.arange(num_communities):
+                idx_1 = np.arange(start=i*community_size, stop=(i+1)*community_size)
+                for j in np.arange(num_communities):
+                    idx_2 = np.arange(start=j*community_size, stop=(j+1)*community_size)
+                    if(i==j):
+                        W[idx_1[:,None], idx_2] = fine_mat_gen(self.inter_community)
+                    else:
+                        W[idx_1[:,None], idx_2] = fine_mat_gen(self.intra_community)   
 
-def aggregateList(myList): 
+        # using networkx, very slow 
+        if(self.SBM_core.genModule=='networkX'): 
+            start_time = datetime.now()
+            g = nx.stochastic_block_model(self.SBM_core.comSizes, self.SBM_core.Qprobs, seed=0, selfloops=True) 
+    #         np.any(self.SBM_core.Qprobs!=self.SBM_core.Qprobs.T) # , nodelist=aggregateList(self.SBM_core.comIndices)
+            print('time elapsed generating networkX SBM {} sec'.format((datetime.now()-start_time).seconds))
+            if(False):
+                nx.draw(g)
+                plt.show()
+            comIdx = g.graph["partition"] 
+            print('partition sizes in nx.stochastic_block_model generator = ', [len(idd) for idd in comIdx])
+            if(False):
+                start_time = datetime.now()
+                W = nx.to_numpy_matrix(g)
+                print('time elapsed converting networkX to W {} sec'.format((datetime.now()-start_time).seconds))
+            gg = myGraph(graphP=g, neighborIdx=g.neighbors, communityPartitions=comIdx, adjacencyMatrix=None)
+        # using graph_tool, supposed to be faster
+        else:
+            K = self.SBM_core.Qprobs.shape[0]
+            n = self.SBM_core.comSizes.sum()
+#             sizes = -1*np.ones((K+1,))
+#             sizes[0] = 0
+#             sizes[1:] = np.cumsum(self.SBM_core.comSizes)
+#             comIdx = [np.arange(sizes[i],sizes[i+1]) for i in np.arange(K)]
+            comPartition = np.random.choice(np.arange(K), size=n, replace=True, p=self.SBM_core.comSizes/self.SBM_core.comSizes.sum())
+#             print('comIdx generated in graph-tool', comIdx)
+            com_connection_sizes = np.array([[int(self.SBM_core.Qprobs[k1,k2]*self.SBM_core.comSizes[k1]*self.SBM_core.comSizes[k2]) for k1 in np.arange(K)] for k2 in np.arange(K)])
+#             print('com_connection_sizes = ', com_connection_sizes)
+#             comGraph = gt.Graph()
+#             comGraph.add_vertex(K)
+#             edgePropMap = EdgePropertyMap(pmap, g) 
+#             print('gt.adjacency(comGraph , com_connection_sizes) = ', gt.adjacency(comGraph, edgePropMap).T)
+            com_connection_sizes += np.diag(np.diag(com_connection_sizes))
+            start_time = datetime.now()
+            g = gt.generate_sbm(comPartition, com_connection_sizes, out_degs=None, in_degs=None, directed=False) # gt.adjacency(comGraph , com_connection_sizes).T
+#           g, comIdx = graph_tool.random_graph(n, lambda: poisson(K), directed=False,
+#                         model="blockmodel",
+#                         block_membership=lambda: randint(K),
+#                         edge_probs=prob)
+#             W = spectral.adjacency(g).tolil().rows # graph_tool.spectral.adjacency(g) # g.get_edges([g.edge_index]) # graph_tool.spectral.adjacency(g).tolil()
+            print('time elapsed generating graph-tool SBM {} sec'.format((datetime.now()-start_time).seconds))
+            start_time = datetime.now()
+            if(False):
+                W = np.zeros((n,n))
+                for v in np.arange(n):
+                    W[v, g.get_all_neighbors(v)] = 1
+                if(False):
+                    print('W generated in graph-tool', W)
+                    print('W row sum = ', np.sum(W, 1))
+                print('time elapsed converting  graph-tool to W {} sec'.format((datetime.now()-start_time).seconds))
+            comIdx = [np.argwhere(comPartition==k) for k in np.arange(K)]
+            print('partition sizes in gt.generate_sbm generator = ', [len(idd) for idd in comIdx])
+            gg = myGraph(graphP=g, neighborIdx=g.get_out_neighbors, communityPartitions=comIdx, adjacencyMatrix=None)
+#         W = reorderMat(W, toPermutation=aggList)
+        return gg, df
+
+def aggregateList(myList):
     agg = []
     for inList in myList:
         agg.extend(inList) # .reshape(-1)
@@ -1818,9 +1945,9 @@ def reorderMat(A, fromPermutation=None, toPermutation=None, dimOnly=None):
 #             fromPermutation =  fromPermutation.communities
         permIdx = np.array(fromPermutation)
 #         print('matrix reordering from')
-    if(dimOnly is 0 or (dimOnly is None and A.shape[0]==permIdx.size)):
+    if(dimOnly==0 or dimOnly==(dimOnly is None and A.shape[0]==permIdx.size)):
         A = A[permIdx,:]
-    if(dimOnly is 1 or (dimOnly is None and A.shape[1]==permIdx.size)):
+    if(dimOnly==1 or dimOnly==(dimOnly is None and A.shape[1]==permIdx.size)):
         A = A[:,permIdx]
     
     return A
@@ -1897,9 +2024,9 @@ class SyncCore():
     
     def update(self, LinCoarsMat_core, SBM_core, sync_calc_mode='max'):
         self.syncMat = np.matmul(LinCoarsMat_core.B, SBM_core.P.T)
-        if(sync_calc_mode is 'max'):
+        if(sync_calc_mode == 'max'):
             self.syncVec = np.max(self.syncMat, axis=1)
-        elif(sync_calc_mode is 'median'):
+        elif(sync_calc_mode == 'median'):
             self.syncVec = np.max(self.syncMat, axis=1)
         self.syncRatio = np.mean(np.mean(self.syncVec))
         return
@@ -1941,20 +2068,81 @@ def Row_Col_kMeansRecovery(W, C):
 def PhiPermutationMap(arr):
     idx = np.argmax(arr, 1)  
     return uniqueOrderPreserve(idx)
-    
 
+def communityConnectionProbabilities(g):
+    K = len(g.communityPartitions)
+    print('Calculating neighbourIdx inline...')
+    neighbourIdx = [list(itertools.chain.from_iterable([list(g.neighborIdx(v)) for v in iter(comId.flatten())])) for comId in g.communityPartitions]
+    counter_complete = 0
+    def commonElems(a, b):
+#       return np.intersect1d(neighbourIdx[a], measuring_core.senseIdx[b]).size
+        nonlocal counter_complete
+        if(counter_complete%100 == 0):
+            print('Generating itertool res {0:.0%} Completed '.format(counter_complete/(K*(K-1)/2)))
+        counter_complete += 1
+        return len(set(neighbourIdx[a]).intersection(g.communityPartitions[b].flatten()))/(K*(K-1)/2)
+    
+    pairs = itertools.combinations(np.arange(K), 2)
+    print('Generating itertool res...')
+    res = dict([ (t, commonElems(*t)) for t in pairs])
+    q = np.min(list(res.values()))
+    p = np.min([commonElems(k,k) for k in np.arange(K)])
+    return p, q
+
+
+labelListFileNames = { 'com-youtube.ungraph': 'com-youtube.all.cmty', # 'com-youtube.top5000.cmty' 
+                       'email-Eu-core': 'email-Eu-core-department-labels'}
 class SNAPnetworkGen():   
     def __init__(self, mode):  
         self.mode=mode       
         
-    def sample(self, size=None):
+    def sample(self, size=None, df=None):
+#         fh=open('Network dataset/{}.txt'.format(self.mode), 'rb')
+#         g=nx.read_edgelist(fh)
+#         fh.close()
         g = nx.read_edgelist('Network dataset/{}.txt'.format(self.mode), create_using=nx.Graph(), nodetype=int)
+        if(self.mode=='email-Eu-core'):
+            with open('Network dataset/{}.txt'.format(labelListFileNames[self.mode])) as f:
+                table = pd.read_table(f, sep=' ', header=None, names=['nodeIdx', 'comIdx'])
+            comPartition = np.array(table['comIdx'])
+            df['n'] = comPartition.size
+            df['K'] = np.max(comPartition)
+            comIdx = [np.argwhere(comPartition==k) for k in np.arange(df['K'])]
+            
+        elif(self.mode=='com-youtube.ungraph'):
+#             table = np.loadtxt('Network dataset/{}.txt'.format(labelListFileNames[self.mode]), dtype=int)
+#             with open('Network dataset/{}.txt'.format(labelListFileNames[self.mode])) as f:
+#                 table = pd.read_table(f, sep='\t', header=None)
+#             with open('Network dataset/{}.txt'.format(labelListFileNames[self.mode])) as f:
+#                 content = f.readlines()
+#             # you may also want to remove whitespace characters like `\n` at the end of each line
+#             table = [x.strip() for x in content] 
+            # open file
+            with open('Network dataset/{}.txt'.format(labelListFileNames[self.mode])) as fp:
+                # 1. iterate over file line-by-line
+                # 2. strip line of newline symbols
+                # 3. split line by spaces into list (of number strings)
+                # 4. convert number substrings to int values
+                # 5. convert map object to list
+                comIdx = [list(map(int, line.strip().split('\t'))) for line in fp]
+            list(itertools.chain.from_iterable(comIdx))
+            df['n'] = np.sum([len(comid) for comid in comIdx])
+            df['K'] = len(comIdx)
+                  
         print(nx.info(g))
-        sp = nx.spring_layout(g)
-        plt.axis('off')
-        nx.draw_networkx(g, pos=sp, with_labels=False) # node_size=
-        plt.show()
+        comSizes = [len(comid) for comid in comIdx]
+        print('Community Sizes', )
+        df['minCommunitySize'] = np.min(comSizes)
+        if(False):
+            sp = nx.spring_layout(g)
+            plt.axis('off')
+            nx.draw_networkx(g, pos=sp, with_labels=False) # node_size=
+            plt.show()
 #         'email-Eu-core-department-labels.txt'
+        gg = myGraph(graphP=g, neighborIdx=g.neighbors, communityPartitions=comIdx, adjacencyMatrix=None)
+        print('Calculating p, q ...')
+        df['p'], df['q'] = communityConnectionProbabilities(gg)
+        return gg, df
 
 
 
@@ -1965,3 +2153,20 @@ def df_empty(columns, dtypes, index=None):
     for c,d in zip(columns, dtypes):
         df[c] = pd.Series(dtype=d)
     return df
+
+
+
+
+def findLargerDivisible(num, numDiv):
+    while (num % numDiv != 0): # math.remainder(num, numDiv)
+        num += 1
+    return num
+
+
+class myGraph():
+    def __init__(self, graphP, neighborIdx, communityPartitions, adjacencyMatrix):
+        self.graphP = graphP
+        self.neighborIdx = neighborIdx
+        self.communityPartitions = communityPartitions
+        self.adjacencyMatrix = adjacencyMatrix
+
