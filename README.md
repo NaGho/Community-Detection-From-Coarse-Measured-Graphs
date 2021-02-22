@@ -1,4 +1,4 @@
-# Community-Detection-From-Coarse-Measured-Graphs
+# Graph Community Detection From Coarse Measurements: Recovery Conditions for the Coarsened Weighted Stochastic Block Model
 
 This repository contains the code to reproduce the results in our paper [1]. we evaluate the error behavior of the community recovery from synthetically generated coarse measured graphs. 
 We compare the theoretical error bounds derived in Sec.  of the paper, with state-of-the-art community detection methods from existing works that are applied to the generated 
