@@ -13,11 +13,11 @@ These methods are tried for various hyper-parameters and the ones that result in
 ![Figure 1: Visual illustration of (a) the underlying high-resolution (fine) graph, (b) the measurement (coarsening) procedure
 whose result is modeled as a coarse graph, and (c) the effect of the coarsening on the community structure, whose
 recovery is the objective of this paper. Some notations used in this paper, with their values realized for this figure, are
-annotated.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/Coarsening_and_Community_Detection_System_Model.pdf)
+annotated.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/blob/master/Coarsening_and_Community_Detection_System_Model.pdf)
 
-![Figure 2-a: Community recovery error w.r.t. the coverage size.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/simulation results/synthetic_UB_Errors_wrt_Coverage Size_n30000_m400_K5_nu2.png)
+![Figure 2-a: Community recovery error w.r.t. the coverage size.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/blob/master/simulation%20results/synthetic_UB_Errors_wrt_Coverage%20Size_n30000_m400_K5_nu2.png)
 
-![Figure 2-b: Community recovery error w.r.t. the measurement size.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/simulation results/synthetic_UB_Errors_wrt_MeasurementSize_n30000_m10_K5_nu2.png)
+![Figure 2-b: Community recovery error w.r.t. the measurement size.](https://github.com/NaGho/Community-Detection-From-Coarse-Measured-Graphs/blob/master/simulation%20results/synthetic_UB_Errors_wrt_MeasurementSize_n30000_m10_K5_nu2.png)
 
 Please use the following for citation:
    > [1] Nafiseh Ghoroghchian, Gautam Dasarathy, and Stark C. Draper. "Graph community detection from coarse measurements",
